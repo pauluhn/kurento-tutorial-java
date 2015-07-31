@@ -18,6 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -50,7 +51,18 @@ public class CallHandler extends TextWebSocketHandler {
         switch (jsonMessage.get("id").getAsString()) {
             case "register":
                 try {
-                    register(session, jsonMessage);
+                    if (register(session, jsonMessage)) {
+                        List<UserSession> roomUsers = registry.getUsersByRoom("TEST ROOM");
+                        if (roomUsers.size() > 1) {
+                            for (UserSession roomUser : roomUsers) {
+                                JsonObject response = new JsonObject();
+                                response.addProperty("id", "let's do this");
+                                response.addProperty("response", "everybody is here");
+                                roomUser.sendMessage(response);
+                            }
+                        }
+                    }
+
                 } catch (Throwable t) {
                     log.error(t.getMessage(), t);
                     JsonObject response = new JsonObject();
@@ -92,23 +104,27 @@ public class CallHandler extends TextWebSocketHandler {
         }
     }
 
-    private void register(WebSocketSession session, JsonObject jsonMessage) throws IOException {
+    private boolean register(WebSocketSession session, JsonObject jsonMessage) throws IOException {
         String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
 
-        UserSession caller = new UserSession(session, name);
+        UserSession caller = new UserSession(session, name, "TEST ROOM");
         String responseMsg = "accepted";
+        boolean registered = false;
         if (name.isEmpty()) {
             responseMsg = "rejected: empty user name";
         } else if (registry.exists(name)) {
             responseMsg = "rejected: user '" + name + "' already registered";
         } else {
             registry.register(caller);
+            registered = true;
         }
 
         JsonObject response = new JsonObject();
         response.addProperty("id", "registerResponse");
         response.addProperty("response", responseMsg);
         caller.sendMessage(response);
+
+        return registered;
     }
 
     private void call(UserSession caller, JsonObject jsonMessage) throws IOException {

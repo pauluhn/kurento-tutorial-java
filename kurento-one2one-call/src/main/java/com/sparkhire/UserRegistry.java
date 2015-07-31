@@ -2,6 +2,9 @@ package com.sparkhire;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,5 +38,16 @@ public class UserRegistry {
             usersBySessionId.remove(session.getId());
         }
         return user;
+    }
+
+    public List<UserSession> getUsersByRoom(String room) {
+        List<UserSession> foundUserSessions = new ArrayList<>();
+        for (Enumeration<UserSession> e = usersByName.elements(); e.hasMoreElements();) {
+            UserSession userSession = e.nextElement();
+            if (userSession.getRoom().equalsIgnoreCase(room)) {
+                foundUserSessions.add(userSession);
+            }
+        }
+        return foundUserSessions;
     }
 }

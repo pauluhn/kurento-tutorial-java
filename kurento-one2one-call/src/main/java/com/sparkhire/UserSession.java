@@ -21,6 +21,7 @@ public class UserSession {
 
     private final String name;
     private final WebSocketSession session;
+    private final String room;
 
     private String sdpOffer;
     private String callingTo;
@@ -28,9 +29,10 @@ public class UserSession {
     private WebRtcEndpoint webRtcEndpoint;
     private final List<IceCandidate> candidateList = new ArrayList<IceCandidate>();
 
-    public UserSession(WebSocketSession session, String name) {
+    public UserSession(WebSocketSession session, String name, String room) {
         this.session = session;
         this.name = name;
+        this.room = room;
     }
 
     public WebSocketSession getSession() {
@@ -39,6 +41,10 @@ public class UserSession {
 
     public String getName() {
         return name;
+    }
+
+    public String getRoom() {
+        return room;
     }
 
     public String getSdpOffer() {
