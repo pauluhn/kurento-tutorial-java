@@ -44,9 +44,9 @@ public class CallHandler extends TextWebSocketHandler {
         UserSession user = registry.getBySession(session);
 
         if (user != null) {
-            log.debug("..Incoming message from user '{}': {}", user.getName(), jsonMessage);
+            log.debug("Incoming message from user '{}': {}", user.getName(), jsonMessage);
         } else {
-            log.debug("..Incoming message from new user: {}", jsonMessage);
+            log.debug("Incoming message from new user: {}", jsonMessage);
         }
 
         switch (jsonMessage.get("id").getAsString()) {
@@ -108,7 +108,7 @@ public class CallHandler extends TextWebSocketHandler {
         }
 
         JsonObject response = new JsonObject();
-        response.addProperty("id", "registerResponse");
+        response.addProperty("id", "registerResponse!");
         response.addProperty("response", responseMsg);
         caller.sendMessage(response);
     }
