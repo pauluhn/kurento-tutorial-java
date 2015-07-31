@@ -23,6 +23,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import com.sparkhire.CallHandler;
+import com.sparkhire.UserRegistry;
 
 /**
  * Video call 1 to 1 demo (main).
@@ -40,7 +41,7 @@ public class One2OneCallApp implements WebSocketConfigurer {
 
 	@Bean
 	public CallHandler callHandler() {
-		return new com.sparkhire.CallHandler();
+		return new CallHandler();
 	}
 
 	@Bean

@@ -9,8 +9,6 @@ import org.kurento.client.KurentoClient;
 import org.kurento.client.OnIceCandidateEvent;
 import org.kurento.jsonrpc.JsonUtils;
 import org.kurento.tutorial.one2onecall.CallMediaPipeline;
-import org.kurento.tutorial.one2onecall.UserRegistry;
-import org.kurento.tutorial.one2onecall.UserSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +106,7 @@ public class CallHandler extends TextWebSocketHandler {
         }
 
         JsonObject response = new JsonObject();
-        response.addProperty("id", "registerResponse!");
+        response.addProperty("id", "registerResponse");
         response.addProperty("response", responseMsg);
         caller.sendMessage(response);
     }
