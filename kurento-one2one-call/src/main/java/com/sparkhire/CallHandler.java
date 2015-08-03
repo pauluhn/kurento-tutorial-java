@@ -154,6 +154,11 @@ public class CallHandler extends TextWebSocketHandler {
         final UserSession caller = userSessions.get(0);
         final UserSession callee = userSessions.get(1);
 
+        String from = caller.getName();
+        callee.setCallingFrom(from);
+        String to = callee.getName();
+        caller.setCallingTo(to);
+
         CallMediaPipeline pipeline = null;
         try {
             pipeline = new CallMediaPipeline(kurento);
