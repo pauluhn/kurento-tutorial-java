@@ -52,9 +52,10 @@ public class CallHandler extends TextWebSocketHandler {
             case "register":
                 try {
                     if (register(session, jsonMessage)) {
-                        List<UserSession> roomUsers = registry.getUsersByRoom("TEST ROOM");
+                        String room = registry.getBySession(session).getRoom();
+                        List<UserSession> roomUsers = registry.getUsersByRoom(room);
                         if (roomUsers.size() > 1) {
-                            Thread.sleep(2000);
+                            Thread.sleep(5000);
                             startCommunication(roomUsers);
                         }
                     }
