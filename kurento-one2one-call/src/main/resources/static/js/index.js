@@ -219,7 +219,8 @@ function register() {
 
 	var message = {
 		id : 'register',
-		name : name
+		name : name,
+		room : 'TEST ROOM'
 	};
 	sendMessage(message);
 	document.getElementById('peer').focus();

@@ -106,8 +106,9 @@ public class CallHandler extends TextWebSocketHandler {
 
     private boolean register(WebSocketSession session, JsonObject jsonMessage) throws IOException {
         String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
+        String room = jsonMessage.getAsJsonPrimitive("room").getAsString();
 
-        UserSession caller = new UserSession(session, name, "TEST ROOM");
+        UserSession caller = new UserSession(session, name, room);
         String responseMsg = "accepted";
         boolean registered = false;
         if (name.isEmpty()) {
