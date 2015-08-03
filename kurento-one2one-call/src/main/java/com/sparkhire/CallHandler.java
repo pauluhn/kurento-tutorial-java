@@ -54,12 +54,7 @@ public class CallHandler extends TextWebSocketHandler {
                     if (register(session, jsonMessage)) {
                         List<UserSession> roomUsers = registry.getUsersByRoom("TEST ROOM");
                         if (roomUsers.size() > 1) {
-                            for (UserSession roomUser : roomUsers) {
-                                JsonObject response = new JsonObject();
-                                response.addProperty("id", "let's do this");
-                                response.addProperty("response", "everybody is here");
-                                roomUser.sendMessage(response);
-                            }
+                            startCommunication(roomUsers);
                         }
                     }
 
@@ -149,6 +144,96 @@ public class CallHandler extends TextWebSocketHandler {
             response.addProperty("response", "rejected: user '" + to + "' is not registered");
 
             caller.sendMessage(response);
+        }
+    }
+
+    private void startCommunication(List<UserSession> userSessions) throws IOException {
+        if (userSessions.size() < 2) {
+            return;
+        }
+        final UserSession caller = userSessions.get(0);
+        final UserSession callee = userSessions.get(1);
+
+        CallMediaPipeline pipeline = null;
+        try {
+            pipeline = new CallMediaPipeline(kurento);
+            pipelines.put(caller.getSessionId(), pipeline);
+            pipelines.put(callee.getSessionId(), pipeline);
+
+            callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEP());
+            pipeline.getCalleeWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+                @Override
+                public void onEvent(OnIceCandidateEvent event) {
+                    JsonObject response = new JsonObject();
+                    response.addProperty("id", "iceCandidate");
+                    response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+                    try {
+                        synchronized (callee.getSession()) {
+                            callee.getSession().sendMessage(new TextMessage(response.toString()));
+                        }
+                    } catch (IOException e) {
+                        log.debug(e.getMessage());
+                    }
+                }
+            });
+
+            caller.setWebRtcEndpoint(pipeline.getCallerWebRtcEP());
+            pipeline.getCallerWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+                @Override
+                public void onEvent(OnIceCandidateEvent event) {
+                    JsonObject response = new JsonObject();
+                    response.addProperty("id", "iceCandidate");
+                    response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+                    try {
+                        synchronized (caller.getSession()) {
+                            caller.getSession().sendMessage(new TextMessage(response.toString()));
+                        }
+                    } catch (IOException e) {
+                        log.debug(e.getMessage());
+                    }
+                }
+            });
+
+            String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(callee.getSdpOffer());
+            String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(caller.getSdpOffer());
+
+            JsonObject startCommunication = new JsonObject();
+            startCommunication.addProperty("id", "startCommunication");
+            startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
+
+            synchronized (callee) {
+                callee.sendMessage(startCommunication);
+            }
+
+            pipeline.getCalleeWebRtcEP().gatherCandidates();
+
+            JsonObject response = new JsonObject();
+            response.addProperty("id", "startCommunication");
+            response.addProperty("sdpAnswer", callerSdpAnswer);
+
+            synchronized (caller) {
+                caller.sendMessage(response);
+            }
+
+            pipeline.getCallerWebRtcEP().gatherCandidates();
+
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+
+            if (pipeline != null) {
+                pipeline.release();
+            }
+
+            pipelines.remove(caller.getSessionId());
+            pipelines.remove(callee.getSessionId());
+
+            JsonObject response = new JsonObject();
+            response.addProperty("id", "stopCommunication");
+            caller.sendMessage(response);
+
+            response = new JsonObject();
+            response.addProperty("id", "stopCommunication");
+            callee.sendMessage(response);
         }
     }
 
