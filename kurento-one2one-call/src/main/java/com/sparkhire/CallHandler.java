@@ -197,17 +197,15 @@ public class CallHandler extends TextWebSocketHandler {
             String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(callee.getSdpOffer());
             String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(caller.getSdpOffer());
 
-            JsonObject startCommunication = new JsonObject();
-            startCommunication.addProperty("id", "startCommunication");
-            startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
+            JsonObject response = new JsonObject();
+            response.addProperty("id", "startCommunication");
+            response.addProperty("sdpAnswer", calleeSdpAnswer);
 
             synchronized (callee) {
-                callee.sendMessage(startCommunication);
+                callee.sendMessage(response);
             }
 
-            pipeline.getCalleeWebRtcEP().gatherCandidates();
-
-            JsonObject response = new JsonObject();
+            response = new JsonObject();
             response.addProperty("id", "startCommunication");
             response.addProperty("sdpAnswer", callerSdpAnswer);
 
@@ -215,6 +213,7 @@ public class CallHandler extends TextWebSocketHandler {
                 caller.sendMessage(response);
             }
 
+            pipeline.getCalleeWebRtcEP().gatherCandidates();
             pipeline.getCallerWebRtcEP().gatherCandidates();
 
         } catch (Throwable t) {
