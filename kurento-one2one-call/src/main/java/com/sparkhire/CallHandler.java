@@ -67,21 +67,6 @@ public class CallHandler extends TextWebSocketHandler {
                     session.sendMessage(new TextMessage(response.toString()));
                 }
                 break;
-            case "call":
-                try {
-                    call(user, jsonMessage);
-                } catch (Throwable t) {
-                    log.error(t.getMessage(), t);
-                    JsonObject response = new JsonObject();
-                    response.addProperty("id", "callResponse");
-                    response.addProperty("response", "rejected");
-                    response.addProperty("message", t.getMessage());
-                    session.sendMessage(new TextMessage(response.toString()));
-                }
-                break;
-            case "incomingCallResponse":
-                incomingCallResponse(user, jsonMessage);
-                break;
             case "onIceCandidate": {
                 JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
                 if (user != null) {
@@ -122,29 +107,6 @@ public class CallHandler extends TextWebSocketHandler {
         caller.sendMessage(response);
 
         return registered;
-    }
-
-    private void call(UserSession caller, JsonObject jsonMessage) throws IOException {
-        String to = jsonMessage.get("to").getAsString();
-        String from = jsonMessage.get("from").getAsString();
-        JsonObject response = new JsonObject();
-
-        if (registry.exists(to)) {
-            UserSession callee = registry.getByName(to);
-            caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
-            caller.setCallingTo(to);
-
-            response.addProperty("id", "incomingCall");
-            response.addProperty("from", from);
-
-            callee.sendMessage(response);
-            callee.setCallingFrom(from);
-        } else {
-            response.addProperty("id", "callResponse");
-            response.addProperty("response", "rejected: user '" + to + "' is not registered");
-
-            caller.sendMessage(response);
-        }
     }
 
     private void startCommunication(List<UserSession> userSessions) throws IOException {
@@ -238,110 +200,6 @@ public class CallHandler extends TextWebSocketHandler {
             response = new JsonObject();
             response.addProperty("id", "stopCommunication");
             callee.sendMessage(response);
-        }
-    }
-
-    private void incomingCallResponse(final UserSession callee, JsonObject jsonMessage) throws IOException {
-        String callResponse = jsonMessage.get("callResponse").getAsString();
-        String from = jsonMessage.get("from").getAsString();
-        final UserSession calleer = registry.getByName(from);
-        String to = calleer.getCallingTo();
-
-        if ("accept".equals(callResponse)) {
-            log.debug("Accepted call from '{}' to '{}'", from, to);
-
-            CallMediaPipeline pipeline = null;
-            try {
-                pipeline = new CallMediaPipeline(kurento);
-                pipelines.put(calleer.getSessionId(), pipeline);
-                pipelines.put(callee.getSessionId(), pipeline);
-
-                String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
-                callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEP());
-                pipeline.getCalleeWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
-                    @Override
-                    public void onEvent(OnIceCandidateEvent event) {
-                        JsonObject response = new JsonObject();
-                        response.addProperty("id", "iceCandidate");
-                        response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-                        try {
-                            synchronized (callee.getSession()) {
-                                callee.getSession().sendMessage(new TextMessage(response.toString()));
-                            }
-                        } catch (IOException e) {
-                            log.debug(e.getMessage());
-                        }
-                    }
-                });
-
-                String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(calleeSdpOffer);
-                String callerSdpOffer = registry.getByName(from).getSdpOffer();
-                calleer.setWebRtcEndpoint(pipeline.getCallerWebRtcEP());
-                pipeline.getCallerWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
-
-                    @Override
-                    public void onEvent(OnIceCandidateEvent event) {
-                        JsonObject response = new JsonObject();
-                        response.addProperty("id", "iceCandidate");
-                        response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-                        try {
-                            synchronized (calleer.getSession()) {
-                                calleer.getSession().sendMessage(new TextMessage(response.toString()));
-                            }
-                        } catch (IOException e) {
-                            log.debug(e.getMessage());
-                        }
-                    }
-                });
-
-                String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(callerSdpOffer);
-
-                JsonObject startCommunication = new JsonObject();
-                startCommunication.addProperty("id", "startCommunication");
-                startCommunication.addProperty("sdpAnswer", calleeSdpAnswer);
-
-                synchronized (callee) {
-                    callee.sendMessage(startCommunication);
-                }
-
-                pipeline.getCalleeWebRtcEP().gatherCandidates();
-
-                JsonObject response = new JsonObject();
-                response.addProperty("id", "callResponse");
-                response.addProperty("response", "accepted");
-                response.addProperty("sdpAnswer", callerSdpAnswer);
-
-                synchronized (calleer) {
-                    calleer.sendMessage(response);
-                }
-
-                pipeline.getCallerWebRtcEP().gatherCandidates();
-
-            } catch (Throwable t) {
-                log.error(t.getMessage(), t);
-
-                if (pipeline != null) {
-                    pipeline.release();
-                }
-
-                pipelines.remove(calleer.getSessionId());
-                pipelines.remove(callee.getSessionId());
-
-                JsonObject response = new JsonObject();
-                response.addProperty("id", "callResponse");
-                response.addProperty("response", "rejected");
-                calleer.sendMessage(response);
-
-                response = new JsonObject();
-                response.addProperty("id", "stopCommunication");
-                callee.sendMessage(response);
-            }
-
-        } else {
-            JsonObject response = new JsonObject();
-            response.addProperty("id", "callResponse");
-            response.addProperty("response", "rejected");
-            calleer.sendMessage(response);
         }
     }
 

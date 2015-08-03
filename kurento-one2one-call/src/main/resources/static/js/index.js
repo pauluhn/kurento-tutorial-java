@@ -31,7 +31,6 @@ function setRegisterState(nextState) {
 	switch (nextState) {
 	case NOT_REGISTERED:
 		$('#register').attr('disabled', false);
-		$('#call').attr('disabled', true);
 		$('#terminate').attr('disabled', true);
 		break;
 	case REGISTERING:
@@ -55,15 +54,12 @@ const IN_CALL = 2;
 function setCallState(nextState) {
 	switch (nextState) {
 	case NO_CALL:
-		$('#call').attr('disabled', false);
 		$('#terminate').attr('disabled', true);
 		break;
 	case PROCESSING_CALL:
-		$('#call').attr('disabled', true);
 		$('#terminate').attr('disabled', true);
 		break;
 	case IN_CALL:
-		$('#call').attr('disabled', true);
 		$('#terminate').attr('disabled', false);
 		break;
 	default:
@@ -92,12 +88,6 @@ ws.onmessage = function(message) {
 	switch (parsedMessage.id) {
 	case 'registerResponse':
 		registerResponse(parsedMessage);
-		break;
-	case 'callResponse':
-		callResponse(parsedMessage);
-		break;
-	case 'incomingCall':
-		incomingCall(parsedMessage);
 		break;
 	case 'startCommunication':
 		startCommunication(parsedMessage);
@@ -129,84 +119,12 @@ function registerResponse(message) {
 	}
 }
 
-function callResponse(message) {
-	if (message.response != 'accepted') {
-		console.info('Call not accepted by peer. Closing call');
-		var errorMessage = message.message ? message.message
-				: 'Unknown reason for call rejection.';
-		console.log(errorMessage);
-		stop();
-	} else {
-		setCallState(IN_CALL);
-		webRtcPeer.processAnswer(message.sdpAnswer, function(error) {
-			if (error)
-				return console.error(error);
-		});
-	}
-}
-
 function startCommunication(message) {
 	setCallState(IN_CALL);
 	webRtcPeer.processAnswer(message.sdpAnswer, function(error) {
 		if (error)
 			return console.error(error);
 	});
-}
-
-function incomingCall(message) {
-	// If bussy just reject without disturbing user
-	if (callState != NO_CALL) {
-		var response = {
-			id : 'incomingCallResponse',
-			from : message.from,
-			callResponse : 'reject',
-			message : 'bussy'
-		};
-		return sendMessage(response);
-	}
-
-	setCallState(PROCESSING_CALL);
-	if (confirm('User ' + message.from
-			+ ' is calling you. Do you accept the call?')) {
-		showSpinner(videoInput, videoOutput);
-
-		from = message.from;
-		var options = {
-			localVideo : videoInput,
-			remoteVideo : videoOutput,
-			onicecandidate : onIceCandidate,
-			onerror : onError
-		}
-		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
-				function(error) {
-					if (error) {
-						return console.error(error);
-					}
-					webRtcPeer.generateOffer(onOfferIncomingCall);
-				});
-
-	} else {
-		var response = {
-			id : 'incomingCallResponse',
-			from : message.from,
-			callResponse : 'reject',
-			message : 'user declined'
-		};
-		sendMessage(response);
-		stop();
-	}
-}
-
-function onOfferIncomingCall(error, offerSdp) {
-	if (error)
-		return console.error("Error generating the offer");
-	var response = {
-		id : 'incomingCallResponse',
-		from : from,
-		callResponse : 'accept',
-		sdpOffer : offerSdp
-	};
-	sendMessage(response);
 }
 
 function register() {

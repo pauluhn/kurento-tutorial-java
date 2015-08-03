@@ -48,7 +48,7 @@
 	</header>
 	<div class="container">
 		<div class="page-header">
-			<h1>Tutorial 4: Video Call 1 to 1 with WebRTC</h1>
+			<h1>Tutorial 4: Spark Hire Live Interview with WebRTC</h1>
 			<p>
 				This web application consists on an one to one video call using <a
 					href="http://www.webrtc.org/">WebRTC</a>. In other words, this
@@ -66,13 +66,8 @@
 				</li>
 				<li>In a different machine (or a different tab in the same
 					browser) follow the same procedure to register another user.</li>
-				<li>Type the name of the user to be called in the field <i>Peer</i>
-					and click <i>Call</i>.
-				</li>
 				<li>Grant the access to the camera and microphone for both
 					users. After the SDP negotiation the communication should start.</li>
-				<li>The called user should accept the incoming call (by a
-					confirmation dialog).</li>
 				<li>Click on <i>Stop</i> to finish the communication.
 				</li>
 			</ol>
@@ -92,16 +87,9 @@
 					</div>
 				</div>
 
-				<br /> <br /> <label class="control-label" for="peer">Peer</label>
 				<div class="row">
-					<div class="col-md-6">
-						<input id="peer" name="peer" class="form-control" type="text"
-							onkeydown="if (event.keyCode == 13) call();">
-					</div>
 					<div class="col-md-6 text-right">
-						<a id="call" href="#" class="btn btn-success"
-							onclick="call(); return false;"><span
-							class="glyphicon glyphicon-play"></span> Call</a> <a id="terminate"
+						<a id="terminate"
 							href="#" class="btn btn-danger" onclick="stop(); return false;"><span
 							class="glyphicon glyphicon-stop"></span> Stop</a>
 					</div>
