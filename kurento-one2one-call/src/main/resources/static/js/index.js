@@ -216,21 +216,10 @@ function register() {
 		return;
 	}
 	setRegisterState(REGISTERING);
-
-	var message = {
-		id : 'register',
-		name : name,
-		room : 'TEST ROOM'
-	};
-	sendMessage(message);
-	document.getElementById('peer').focus();
+	generateOffer();
 }
 
-function call() {
-	if (document.getElementById('peer').value == '') {
-		window.alert('You must specify the peer name');
-		return;
-	}
+function generateOffer() {
 	setCallState(PROCESSING_CALL);
 	showSpinner(videoInput, videoOutput);
 
@@ -254,9 +243,9 @@ function onOfferCall(error, offerSdp) {
 		return console.error('Error generating the offer');
 	console.log('Invoking SDP offer callback function');
 	var message = {
-		id : 'call',
-		from : document.getElementById('name').value,
-		to : document.getElementById('peer').value,
+		id : 'register',
+		name : name,
+		room : 'TEST ROOM',
 		sdpOffer : offerSdp
 	};
 	sendMessage(message);

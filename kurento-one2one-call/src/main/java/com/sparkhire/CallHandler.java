@@ -116,6 +116,7 @@ public class CallHandler extends TextWebSocketHandler {
         } else if (registry.exists(name)) {
             responseMsg = "rejected: user '" + name + "' already registered";
         } else {
+            caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
             registry.register(caller);
             registered = true;
         }
