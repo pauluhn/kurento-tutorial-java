@@ -162,10 +162,11 @@ function onOfferCall(error, offerSdp) {
 	console.log('Invoking SDP offer callback function');
 
 	var name = document.getElementById('name').value;
+	var room = document.getElementById('room').value;
 	var message = {
 		id : 'register',
 		name : name,
-		room : 'TEST ROOM',
+		room : room,
 		sdpOffer : offerSdp
 	};
 	sendMessage(message);

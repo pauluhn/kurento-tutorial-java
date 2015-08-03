@@ -62,10 +62,10 @@
 			<ol>
 				<li>Open this page with a browser compliant with WebRTC
 					(Chrome, Firefox).</li>
-				<li>Type a nick in the field <i>Name</i> and click on <i>Register</i>.
+				<li>Type a nick in the field <i>Name</i> and a room in the field <i>Room</i> and click on <i>Register</i>.
 				</li>
 				<li>In a different machine (or a different tab in the same
-					browser) follow the same procedure to register another user.</li>
+					browser) follow the same procedure to register another user using the same room.</li>
 				<li>Grant the access to the camera and microphone for both
 					users. After the SDP negotiation the communication should start.</li>
 				<li>Click on <i>Stop</i> to finish the communication.
@@ -80,10 +80,18 @@
 						<input id="name" name="name" class="form-control" type="text"
 							onkeydown="if (event.keyCode == 13) register();" />
 					</div>
+				</div>
+
+				<br /> <br /> <label class="control-label" for="room">Room</label>
+				<div class="row">
+					<div class="col-md-6">
+						<input id="room" name="room" class="form-control" type="text"
+							   onkeydown="if (event.keyCode == 13) register();" />
+					</div>
 					<div class="col-md-6 text-right">
 						<a id="register" href="#" class="btn btn-primary"
-							onclick="register(); return false;"><span
-							class="glyphicon glyphicon-plus"></span> Register</a>
+						   onclick="register(); return false;"><span
+								class="glyphicon glyphicon-plus"></span> Register</a>
 						<a id="terminate"
 						   href="#" class="btn btn-danger" onclick="stop(); return false;"><span
 								class="glyphicon glyphicon-stop"></span> Stop</a>
