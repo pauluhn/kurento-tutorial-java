@@ -54,6 +54,7 @@ public class CallHandler extends TextWebSocketHandler {
                     if (register(session, jsonMessage)) {
                         List<UserSession> roomUsers = registry.getUsersByRoom("TEST ROOM");
                         if (roomUsers.size() > 1) {
+                            Thread.sleep(2000);
                             startCommunication(roomUsers);
                         }
                     }
