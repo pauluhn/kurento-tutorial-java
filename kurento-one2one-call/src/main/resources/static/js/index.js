@@ -112,8 +112,7 @@ function registerResponse(message) {
 		setRegisterState(REGISTERED);
 	} else {
 		setRegisterState(NOT_REGISTERED);
-		var errorMessage = message.message ? message.message
-				: 'Unknown reason for register rejection.';
+		var errorMessage = message.error;
 		console.log(errorMessage);
 		alert('Error registering user. See console for further information.');
 	}

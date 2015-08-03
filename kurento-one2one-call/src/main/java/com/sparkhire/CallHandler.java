@@ -64,8 +64,7 @@ public class CallHandler extends TextWebSocketHandler {
                     log.error(t.getMessage(), t);
                     JsonObject response = new JsonObject();
                     response.addProperty("id", "registerResponse");
-                    response.addProperty("response", "rejected");
-                    response.addProperty("message", t.getMessage());
+                    response.addProperty("error", t.getMessage());
                     session.sendMessage(new TextMessage(response.toString()));
                 }
                 break;
@@ -89,26 +88,25 @@ public class CallHandler extends TextWebSocketHandler {
     private boolean register(WebSocketSession session, JsonObject jsonMessage) throws IOException {
         String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
         String room = jsonMessage.getAsJsonPrimitive("room").getAsString();
-
         UserSession caller = new UserSession(session, name, room);
-        String responseMsg = "accepted";
-        boolean registered = false;
-        if (name.isEmpty()) {
-            responseMsg = "rejected: empty user name";
-        } else if (registry.exists(name)) {
-            responseMsg = "rejected: user '" + name + "' already registered";
-        } else {
-            caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
-            registry.register(caller);
-            registered = true;
-        }
 
         JsonObject response = new JsonObject();
         response.addProperty("id", "registerResponse");
-        response.addProperty("response", responseMsg);
-        caller.sendMessage(response);
-
-        return registered;
+        if (name.isEmpty()) {
+            response.addProperty("error", "rejected: empty user name");
+            caller.sendMessage(response);
+            return false;
+        } else if (registry.exists(name)) {
+            response.addProperty("error", "rejected: user '" + name + "' already registered");
+            caller.sendMessage(response);
+            return false;
+        } else {
+            caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
+            registry.register(caller);
+            response.addProperty("response", "accepted");
+            caller.sendMessage(response);
+            return true;
+        }
     }
 
     private void startCommunication(List<UserSession> userSessions) throws IOException {
