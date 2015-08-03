@@ -242,6 +242,8 @@ function onOfferCall(error, offerSdp) {
 	if (error)
 		return console.error('Error generating the offer');
 	console.log('Invoking SDP offer callback function');
+
+	var name = document.getElementById('name').value;
 	var message = {
 		id : 'register',
 		name : name,
