@@ -64,7 +64,8 @@ public class CallHandler extends TextWebSocketHandler {
                     log.error(t.getMessage(), t);
                     JsonObject response = new JsonObject();
                     response.addProperty("id", "registerResponse");
-                    response.addProperty("error", t.getMessage());
+                    response.addProperty("response", "rejected");
+                    response.addProperty("message", t.getMessage());
                     session.sendMessage(new TextMessage(response.toString()));
                 }
                 break;
@@ -93,11 +94,13 @@ public class CallHandler extends TextWebSocketHandler {
         JsonObject response = new JsonObject();
         response.addProperty("id", "registerResponse");
         if (name.isEmpty()) {
-            response.addProperty("error", "rejected: empty user name");
+            response.addProperty("response", "rejected");
+            response.addProperty("message", "empty user name");
             caller.sendMessage(response);
             return false;
         } else if (registry.exists(name)) {
-            response.addProperty("error", "rejected: user '" + name + "' already registered");
+            response.addProperty("response", "rejected");
+            response.addProperty("message", "user '" + name + "' already registered");
             caller.sendMessage(response);
             return false;
         } else {

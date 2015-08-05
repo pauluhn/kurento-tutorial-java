@@ -112,7 +112,7 @@ function registerResponse(message) {
 		setRegisterState(REGISTERED);
 	} else {
 		setRegisterState(NOT_REGISTERED);
-		var errorMessage = message.error;
+		var errorMessage = message.message;
 		console.log(errorMessage);
 		alert('Error registering user. See console for further information.');
 	}
