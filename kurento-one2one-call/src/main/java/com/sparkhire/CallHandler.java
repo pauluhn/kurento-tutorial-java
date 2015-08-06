@@ -70,8 +70,13 @@ public class CallHandler extends TextWebSocketHandler {
                 }
                 break;
             case "onIceCandidate": {
+                System.out.println("onIceCandidate");
                 JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
+                System.out.println("--candidate=" + candidate.toString());
                 if (user != null) {
+                    System.out.println("----candidate=" + candidate.get("candidate").getAsString());
+                    System.out.println("----sdpMid=" + candidate.get("sdpMid").getAsString());
+                    System.out.println("----sdpMLineIndex=" + candidate.get("sdpMLineIndex").getAsString());
                     IceCandidate cand = new IceCandidate(candidate.get("candidate").getAsString(),
                             candidate.get("sdpMid").getAsString(), candidate.get("sdpMLineIndex").getAsInt());
                     user.addCandidate(cand);
