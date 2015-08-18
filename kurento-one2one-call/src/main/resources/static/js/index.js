@@ -214,6 +214,17 @@ function sendMessage(message) {
 	ws.send(jsonMessage);
 }
 
+function chat() {
+	var message = }
+		id : 'chatMessage',
+		displayName : 'js test',
+		avatarImage : 'js test url',
+		published : 'js test date',
+		body : 'js test message'
+	};
+	sendMessage(message);
+}
+
 function showSpinner() {
 	for (var i = 0; i < arguments.length; i++) {
 		arguments[i].poster = './img/transparent-1px.png';
