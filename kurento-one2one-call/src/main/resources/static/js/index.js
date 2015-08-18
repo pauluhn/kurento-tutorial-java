@@ -102,6 +102,9 @@ ws.onmessage = function(message) {
 				return console.error('Error adding candidate: ' + error);
 		});
 		break;
+	case 'chatMessage':
+		chatMessage(parsedMessage);
+		break;
 	default:
 		console.error('Unrecognized message', parsedMessage);
 	}
@@ -124,6 +127,10 @@ function startCommunication(message) {
 		if (error)
 			return console.error(error);
 	});
+}
+
+function chatMessage(message) {
+	console.info(message.displayName + ' sent \'' + message.messageBody + '\'');
 }
 
 function register() {
