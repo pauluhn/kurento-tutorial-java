@@ -130,7 +130,7 @@ function startCommunication(message) {
 }
 
 function chatMessage(message) {
-	console.info(message.displayName + ' sent \'' + message.messageBody + '\'');
+	console.info(message.displayName + ' sent \'' + message.body + '\'');
 }
 
 function register() {
