@@ -215,7 +215,7 @@ function sendMessage(message) {
 }
 
 function chat() {
-	var message = }
+	var message = {
 		id : 'chatMessage',
 		displayName : 'js test',
 		avatarImage : 'js test url',
