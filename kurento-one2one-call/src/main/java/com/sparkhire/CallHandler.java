@@ -83,6 +83,21 @@ public class CallHandler extends TextWebSocketHandler {
                 }
                 break;
             }
+            case "chatMessage":
+                try {
+                    if (user != null) {
+                        chatMessage(session, jsonMessage);
+                    }
+
+                } catch (Throwable t) {
+                    log.error(t.getMessage(), t);
+                    JsonObject response = new JsonObject();
+                    response.addProperty("id", "chatMessage");
+                    response.addProperty("displayName", "Error");
+                    response.addProperty("body", t.getMessage());
+                    session.sendMessage(new TextMessage(response.toString()));
+                }
+                break;
             case "stop":
                 stop(session);
                 break;
@@ -211,7 +226,15 @@ public class CallHandler extends TextWebSocketHandler {
         }
     }
 
-    public void stop(WebSocketSession session) throws IOException {
+    private void chatMessage(WebSocketSession session, JsonObject jsonMessage) throws IOException {
+        UserSession sendUser = registry.getBySession(session);
+        UserSession recvUser = (sendUser.getCallingFrom() != null)
+                ? registry.getByName(sendUser.getCallingFrom()) : registry.getByName(sendUser.getCallingTo());
+
+        recvUser.sendMessage(jsonMessage);
+    }
+
+    private void stop(WebSocketSession session) throws IOException {
         String sessionId = session.getId();
         if (pipelines.containsKey(sessionId)) {
             pipelines.get(sessionId).release();
