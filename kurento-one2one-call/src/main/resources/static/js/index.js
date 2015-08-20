@@ -32,6 +32,7 @@ function setRegisterState(nextState) {
 	case NOT_REGISTERED:
 		$('#register').attr('disabled', false);
 		$('#terminate').attr('disabled', true);
+		$('#send').attr('disabled', true);
 		break;
 	case REGISTERING:
 		$('#register').attr('disabled', true);
@@ -55,12 +56,15 @@ function setCallState(nextState) {
 	switch (nextState) {
 	case NO_CALL:
 		$('#terminate').attr('disabled', true);
+		$('#send').attr('disabled', true);
 		break;
 	case PROCESSING_CALL:
 		$('#terminate').attr('disabled', true);
+		$('#send').attr('disabled', true);
 		break;
 	case IN_CALL:
 		$('#terminate').attr('disabled', false);
+		$('#send').attr('disabled', false);
 		break;
 	default:
 		return;
@@ -215,12 +219,15 @@ function sendMessage(message) {
 }
 
 function chat() {
+	var name = document.getElementById('name').value;
+	var body = document.getElementById('body').value;
+
 	var message = {
 		id : 'chatMessage',
-		displayName : 'js test',
+		displayName : name,
 		avatarImage : 'js test url',
 		published : 'js test date',
-		body : 'js test message'
+		body : body
 	};
 	sendMessage(message);
 }
