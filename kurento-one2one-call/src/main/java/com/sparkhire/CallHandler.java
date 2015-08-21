@@ -93,7 +93,7 @@ public class CallHandler extends TextWebSocketHandler {
                     log.error(t.getMessage(), t);
                     JsonObject response = new JsonObject();
                     response.addProperty("id", "chatMessage");
-                    response.addProperty("displayName", "Error");
+                    response.addProperty("displayName", "Message Send Error");
                     response.addProperty("body", t.getMessage());
                     session.sendMessage(new TextMessage(response.toString()));
                 }
