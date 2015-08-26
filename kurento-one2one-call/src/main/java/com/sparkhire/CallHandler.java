@@ -146,50 +146,50 @@ public class CallHandler extends TextWebSocketHandler {
 
         CallMediaPipeline pipeline = null;
         try {
-            pipeline = new CallMediaPipeline(kurento);
-            pipelines.put(caller.getSessionId(), pipeline);
-            pipelines.put(callee.getSessionId(), pipeline);
-
-            callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEP());
-            pipeline.getCalleeWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
-                @Override
-                public void onEvent(OnIceCandidateEvent event) {
-                    JsonObject response = new JsonObject();
-                    response.addProperty("id", "iceCandidate");
-                    response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-                    try {
-                        synchronized (callee.getSession()) {
-                            callee.getSession().sendMessage(new TextMessage(response.toString()));
-                        }
-                    } catch (IOException e) {
-                        log.debug(e.getMessage());
-                    }
-                }
-            });
-
-            caller.setWebRtcEndpoint(pipeline.getCallerWebRtcEP());
-            pipeline.getCallerWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
-                @Override
-                public void onEvent(OnIceCandidateEvent event) {
-                    JsonObject response = new JsonObject();
-                    response.addProperty("id", "iceCandidate");
-                    response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-                    try {
-                        synchronized (caller.getSession()) {
-                            caller.getSession().sendMessage(new TextMessage(response.toString()));
-                        }
-                    } catch (IOException e) {
-                        log.debug(e.getMessage());
-                    }
-                }
-            });
-
-            String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(callee.getSdpOffer());
-            String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(caller.getSdpOffer());
+//            pipeline = new CallMediaPipeline(kurento);
+//            pipelines.put(caller.getSessionId(), pipeline);
+//            pipelines.put(callee.getSessionId(), pipeline);
+//
+//            callee.setWebRtcEndpoint(pipeline.getCalleeWebRtcEP());
+//            pipeline.getCalleeWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+//                @Override
+//                public void onEvent(OnIceCandidateEvent event) {
+//                    JsonObject response = new JsonObject();
+//                    response.addProperty("id", "iceCandidate");
+//                    response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+//                    try {
+//                        synchronized (callee.getSession()) {
+//                            callee.getSession().sendMessage(new TextMessage(response.toString()));
+//                        }
+//                    } catch (IOException e) {
+//                        log.debug(e.getMessage());
+//                    }
+//                }
+//            });
+//
+//            caller.setWebRtcEndpoint(pipeline.getCallerWebRtcEP());
+//            pipeline.getCallerWebRtcEP().addOnIceCandidateListener(new EventListener<OnIceCandidateEvent>() {
+//                @Override
+//                public void onEvent(OnIceCandidateEvent event) {
+//                    JsonObject response = new JsonObject();
+//                    response.addProperty("id", "iceCandidate");
+//                    response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+//                    try {
+//                        synchronized (caller.getSession()) {
+//                            caller.getSession().sendMessage(new TextMessage(response.toString()));
+//                        }
+//                    } catch (IOException e) {
+//                        log.debug(e.getMessage());
+//                    }
+//                }
+//            });
+//
+//            String calleeSdpAnswer = pipeline.generateSdpAnswerForCallee(callee.getSdpOffer());
+//            String callerSdpAnswer = pipeline.generateSdpAnswerForCaller(caller.getSdpOffer());
 
             JsonObject response = new JsonObject();
             response.addProperty("id", "startCommunication");
-            response.addProperty("sdpAnswer", calleeSdpAnswer);
+            response.addProperty("sdpAnswer", "no sdp");//calleeSdpAnswer);
 
             synchronized (callee) {
                 callee.sendMessage(response);
@@ -197,14 +197,14 @@ public class CallHandler extends TextWebSocketHandler {
 
             response = new JsonObject();
             response.addProperty("id", "startCommunication");
-            response.addProperty("sdpAnswer", callerSdpAnswer);
+            response.addProperty("sdpAnswer", "no sdp");//callerSdpAnswer);
 
             synchronized (caller) {
                 caller.sendMessage(response);
             }
 
-            pipeline.getCalleeWebRtcEP().gatherCandidates();
-            pipeline.getCallerWebRtcEP().gatherCandidates();
+//            pipeline.getCalleeWebRtcEP().gatherCandidates();
+//            pipeline.getCallerWebRtcEP().gatherCandidates();
 
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
