@@ -28,11 +28,17 @@ public class UserSession {
     private String callingFrom;
     private WebRtcEndpoint webRtcEndpoint;
     private final List<IceCandidate> candidateList = new ArrayList<IceCandidate>();
+    private boolean usePipeline = true;
 
     public UserSession(WebSocketSession session, String name, String room) {
         this.session = session;
         this.name = name;
         this.room = room;
+    }
+
+    public UserSession(WebSocketSession session, String name, String room, boolean usePipeline) {
+        this(session, name, room);
+        this.usePipeline = usePipeline;
     }
 
     public WebSocketSession getSession() {
@@ -45,6 +51,10 @@ public class UserSession {
 
     public String getRoom() {
         return room;
+    }
+
+    public boolean getUsePipeline() {
+        return usePipeline;
     }
 
     public String getSdpOffer() {
