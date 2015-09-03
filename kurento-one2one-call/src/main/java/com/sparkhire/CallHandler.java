@@ -116,16 +116,7 @@ public class CallHandler extends TextWebSocketHandler {
         List<UserSession> timeoutUsers = registry.getUsersForTimeout(MAX_TIMEOUT);
         System.out.println("checkSessionTimeouts, timeoutUsers count: " + timeoutUsers.size());
         for (UserSession userSession : timeoutUsers) {
-            System.out.println("--userSession: " + userSession.getName() + " in room: " + userSession.getRoom());
-            JsonObject response = new JsonObject();
-            response.addProperty("id", "stopCommunication");
-            try {
-                userSession.sendMessage(response);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                registry.removeBySession(userSession.getSession());
-            }
+            forceLogoutAndCleanup(userSession);
         }
     }
 
@@ -284,6 +275,19 @@ public class CallHandler extends TextWebSocketHandler {
             JsonObject message = new JsonObject();
             message.addProperty("id", "stopCommunication");
             stoppedUser.sendMessage(message);
+        }
+    }
+
+    private void forceLogoutAndCleanup(UserSession userSession) {
+        System.out.println("force logout for userSession: " + userSession.getName() + " in room: " + userSession.getRoom());
+        JsonObject response = new JsonObject();
+        response.addProperty("id", "stopCommunication");
+        try {
+            userSession.sendMessage(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            registry.removeBySession(userSession.getSession());
         }
     }
 
