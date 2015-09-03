@@ -107,6 +107,9 @@ public class CallHandler extends TextWebSocketHandler {
             case "stop":
                 stop(session);
                 break;
+            case "forceLogout":
+                forceLogout(session, jsonMessage);
+                break;
             default:
                 break;
         }
@@ -276,6 +279,12 @@ public class CallHandler extends TextWebSocketHandler {
             message.addProperty("id", "stopCommunication");
             stoppedUser.sendMessage(message);
         }
+    }
+
+    private void forceLogout(WebSocketSession session, JsonObject jsonMessage) throws IOException {
+        String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
+        UserSession userSession = registry.getByName(name);
+        forceLogoutAndCleanup(userSession);
     }
 
     private void forceLogoutAndCleanup(UserSession userSession) {

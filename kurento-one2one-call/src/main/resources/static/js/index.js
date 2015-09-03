@@ -232,6 +232,16 @@ function chat() {
 	sendMessage(message);
 }
 
+function forceLogout() {
+	var name = document.getElementById('logout').value;
+
+	var message = {
+		id : 'forceLogout',
+		name : name
+	};
+	sendMessage(message);
+}
+
 function showSpinner() {
 	for (var i = 0; i < arguments.length; i++) {
 		arguments[i].poster = './img/transparent-1px.png';
