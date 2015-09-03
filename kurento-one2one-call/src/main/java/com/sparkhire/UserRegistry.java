@@ -3,6 +3,7 @@ package com.sparkhire;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,6 +46,20 @@ public class UserRegistry {
         for (Enumeration<UserSession> e = usersByName.elements(); e.hasMoreElements();) {
             UserSession userSession = e.nextElement();
             if (userSession.getRoom().equalsIgnoreCase(room)) {
+                foundUserSessions.add(userSession);
+            }
+        }
+        return foundUserSessions;
+    }
+
+    public List<UserSession> getUsersForTimeout(long maxTimeout) {
+        List<UserSession> foundUserSessions = new ArrayList<>();
+        for (Enumeration<UserSession> e = usersByName.elements(); e.hasMoreElements();) {
+            UserSession userSession = e.nextElement();
+            Date lastActive = userSession.getLastActive();
+            long lastActiveInMs = lastActive.getTime();
+            long timePassed = new Date().getTime() - lastActiveInMs;
+            if (timePassed > maxTimeout) {
                 foundUserSessions.add(userSession);
             }
         }

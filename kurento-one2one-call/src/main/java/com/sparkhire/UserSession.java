@@ -10,6 +10,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ public class UserSession {
     private WebRtcEndpoint webRtcEndpoint;
     private final List<IceCandidate> candidateList = new ArrayList<IceCandidate>();
     private boolean usePipeline = true;
+    private Date lastActive = new Date();
 
     public UserSession(WebSocketSession session, String name, String room) {
         this.session = session;
@@ -55,6 +57,14 @@ public class UserSession {
 
     public boolean getUsePipeline() {
         return usePipeline;
+    }
+
+    public Date getLastActive() {
+        return lastActive;
+    }
+
+    private void resetLastActive() {
+        lastActive = new Date();
     }
 
     public String getSdpOffer() {
@@ -84,6 +94,7 @@ public class UserSession {
     public void sendMessage(JsonObject message) throws IOException {
         log.debug("Sending message from user '{}': {}", name, message);
         session.sendMessage(new TextMessage(message.toString()));
+        resetLastActive();
     }
 
     public String getSessionId() {

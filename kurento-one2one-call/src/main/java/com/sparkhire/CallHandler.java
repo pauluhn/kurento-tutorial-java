@@ -29,6 +29,11 @@ public class CallHandler extends TextWebSocketHandler {
     private static final Logger log = LoggerFactory.getLogger(CallHandler.class);
     private static final Gson gson = new GsonBuilder().create();
 
+    private static final long TIMEOUT_1SEC_IN_MS = 1000;
+    private static final long TIMEOUT_1MIN_IN_MS = TIMEOUT_1SEC_IN_MS * 60;
+    private static final long TIMEOUT_1HR_IN_MS = TIMEOUT_1MIN_IN_MS * 60;
+    private static final long MAX_TIMEOUT = TIMEOUT_1HR_IN_MS; // time out after 1 hour
+
     private final ConcurrentHashMap<String, CallMediaPipeline> pipelines = new ConcurrentHashMap<String, CallMediaPipeline>();
 
     @Autowired
@@ -51,6 +56,7 @@ public class CallHandler extends TextWebSocketHandler {
         switch (jsonMessage.get("id").getAsString()) {
             case "register":
                 try {
+                    checkSessionTimeouts();
                     if (register(session, jsonMessage)) {
                         String room = registry.getBySession(session).getRoom();
                         List<UserSession> roomUsers = registry.getUsersByRoom(room);
@@ -103,6 +109,23 @@ public class CallHandler extends TextWebSocketHandler {
                 break;
             default:
                 break;
+        }
+    }
+
+    private void checkSessionTimeouts() {
+        List<UserSession> timeoutUsers = registry.getUsersForTimeout(MAX_TIMEOUT);
+        System.out.println("checkSessionTimeouts, timeoutUsers count: " + timeoutUsers.size());
+        for (UserSession userSession : timeoutUsers) {
+            System.out.println("--userSession: " + userSession.getName() + " in room: " + userSession.getRoom());
+            JsonObject response = new JsonObject();
+            response.addProperty("id", "stopCommunication");
+            try {
+                userSession.sendMessage(response);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                registry.removeBySession(userSession.getSession());
+            }
         }
     }
 
