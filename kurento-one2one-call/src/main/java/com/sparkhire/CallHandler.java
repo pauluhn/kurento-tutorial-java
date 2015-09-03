@@ -32,7 +32,7 @@ public class CallHandler extends TextWebSocketHandler {
     private static final long TIMEOUT_1SEC_IN_MS = 1000;
     private static final long TIMEOUT_1MIN_IN_MS = TIMEOUT_1SEC_IN_MS * 60;
     private static final long TIMEOUT_1HR_IN_MS = TIMEOUT_1MIN_IN_MS * 60;
-    private static final long MAX_TIMEOUT = TIMEOUT_1MIN_IN_MS; // time out after 1 min for testing
+    private static final long MAX_TIMEOUT = TIMEOUT_1HR_IN_MS; // time out after 1 hour
 
     private final ConcurrentHashMap<String, CallMediaPipeline> pipelines = new ConcurrentHashMap<String, CallMediaPipeline>();
 
